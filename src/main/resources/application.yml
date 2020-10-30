@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: test
+    url: jdbc:postgresql://localhost:5432/pg
+    initialization-mode: always
+  flyway:
+    user: admin
+    password: test
+    url: jdbc:postgresql://localhost:5432/pg
+
+logging.level:
+  root: info
+
+jwt:
+  secret: very-very-secret-key-should-be-almost-infinity
+  expiration: 86400
+
