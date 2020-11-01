@@ -1,23 +1,24 @@
-package by.mark.twofa.component;
+package by.mark.twofa.component.jwt;
 
+import by.mark.twofa.config.JwtConfig;
+import by.mark.twofa.constant.ClaimField;
+import by.mark.twofa.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import by.mark.twofa.model.User;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Component
+@RequiredArgsConstructor
 public class JwtProvider {
-    @Value("${jwt.secret}")
-    private String secret;
-    @Value("${jwt.expiration}")
-    private String expirationTime;
+
+    private final JwtConfig jwtConfig;
 
     public String extractUsername(String authToken) {
         return getClaimsFromToken(authToken)
@@ -25,7 +26,7 @@ public class JwtProvider {
     }
 
     public Claims getClaimsFromToken(String authToken) {
-        String key = Base64.getEncoder().encodeToString(secret.getBytes());
+        String key = Base64.getEncoder().encodeToString(jwtConfig.getSecret().getBytes());
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -41,18 +42,22 @@ public class JwtProvider {
 
     public String generateToken(User user) {
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("role", List.of(user.getRole()));
+        //ROLE ~ AUTHORITIES
+        claims.put(ClaimField.ROLE, List.of(user.getRole()));
+        claims.put(
+                ClaimField.AUTHORITIES,
+                user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
+        );
 
-        long expirationSeconds = Long.parseLong(expirationTime);
         Date creationDate = new Date();
-        Date expirationDate = new Date(creationDate.getTime() + expirationSeconds * 1000);
+        Date expirationDate = new Date(creationDate.getTime() + jwtConfig.getExpiration() * 1000);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(creationDate)
                 .setExpiration(expirationDate)
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .signWith(Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes()))
                 .compact();
     }
 }

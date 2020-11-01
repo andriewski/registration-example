@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+by.mark.twofa.autoconfigure.TwoFaAutoConfiguration

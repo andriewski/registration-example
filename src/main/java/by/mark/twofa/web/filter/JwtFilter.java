@@ -1,6 +1,6 @@
-package by.mark.twofa.filter;
+package by.mark.twofa.web.filter;
 
-import by.mark.twofa.component.JwtProvider;
+import by.mark.twofa.component.jwt.JwtProvider;
 import by.mark.twofa.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -22,7 +21,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtFilter extends GenericFilterBean {
 

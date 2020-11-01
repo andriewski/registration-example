@@ -1,4 +1,4 @@
-package by.mark.twofa.controller;
+package by.mark.twofa.web.controller;
 
 import by.mark.twofa.model.Message;
 import by.mark.twofa.service.MessageService;

@@ -1,6 +1,7 @@
-package by.mark.twofa.config;
+package by.mark.twofa.component.security;
 
-import by.mark.twofa.component.JwtProvider;
+import by.mark.twofa.component.jwt.JwtProvider;
+import by.mark.twofa.constant.ClaimField;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,17 +9,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class AuthenticationManagerImpl implements AuthenticationManager {
 
-    private final JwtProvider jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -28,18 +27,18 @@ public class AuthenticationManagerImpl implements AuthenticationManager {
         String username;
 
         try {
-            username = jwtUtil.extractUsername(authToken);
+            username = jwtProvider.extractUsername(authToken);
         } catch (Exception e) {
             username = null;
             log.warn("Exception was thrown", e);
         }
 
-        if (username == null || !jwtUtil.validateToken(authToken)) {
+        if (username == null || !jwtProvider.validateToken(authToken)) {
             return null;
         }
 
-        Claims claims = jwtUtil.getClaimsFromToken(authToken);
-        List<String> role = claims.get("role", List.class);
+        Claims claims = jwtProvider.getClaimsFromToken(authToken);
+        List<String> role = claims.get(ClaimField.ROLE, List.class);
         List<SimpleGrantedAuthority> authorities = role.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

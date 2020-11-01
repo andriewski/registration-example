@@ -11,22 +11,27 @@
     </script>
 </head>
 <body>
-Hello, no name!
+<h1>Sign in</h1>
 <form
-    onsubmit="
+        onsubmit="
     var payload = {
         method: 'post',
         headers: {
             'Content-type': 'application/json'
         },
-        body: JSON.stringify({username: `${this.username.value}`, password: `${this.password.value}`})
+        body: JSON.stringify({
+          username: `${this.username.value}`,
+          password: `${this.password.value}`,
+          code: `${this.code.value}`
+        })
     };
-    fetch('/login', payload).then(resp => resp.text()).then(t => token = t);
+    fetch('/api/v1/user/login', payload).then(resp => resp.text()).then(t => token = t);
     return false;
 "
 >
     <input type="text" name="username">
     <input type="password" name="password">
+    <input type="text" name="code">
     <input type="submit" value="Sign in">
 </form>
 
@@ -41,15 +46,40 @@ fetch(
 ).then(resp => resp.json()).then(console.log)
 ">
 
-<input type="button" value="hello" onclick="
-fetch(
-    '/hello',
-    {
+<hr>
+
+<h1>Sign up</h1>
+<form
+        onsubmit="
+    var payload = {
+        method: 'post',
         headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    }
-).then(resp => resp.json()).then(console.log)
-">
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: `${this.username.value}`,
+          password: `${this.password.value}`,
+          role: `${this.role.value}`,
+          multiFactorAuthentication: `${this.multiFactorAuthentication.value === 'on'}`
+        })
+    };
+    fetch('/api/v1/user/register', payload)
+        .then(resp => resp.text())
+        .then(data => document.getElementById('qr-code')
+                              .setAttribute('src', JSON.parse(data)['secretImageUri'])
+        );
+
+    return false;
+"
+>
+    <input placeholder="username" type="text" name="username">
+    <input placeholder="password" type="password" name="password">
+    <input placeholder="role" type="text" name="role">
+    <input placeholder="multiFactorAuthentication" type="checkbox" name="multiFactorAuthentication">
+    <input type="submit" value="Register">
+</form>
+
+<img id="qr-code" src=""/>
+
 </body>
 </html>
